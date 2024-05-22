@@ -1,31 +1,31 @@
 require 'spec_helper'
 
-RSpec.describe 'The HelloWorld App' do
-  include Rack::Test::Methods
+RSpec.describe Email do
+  describe 'validations' do
+    it 'is valid with all required attributes' do
+      expect(build(:email)).to be_valid
+    end
 
-  def app
-    CommunicationApp
+    it 'requires the recipient, sender, subject and body' do
+      email = Email.new
+      expect(email).not_to be_valid
+      expect(email.errors.to_hash.keys).to include(:to, :to_name, :from, :from_name, :subject, :body)
+    end
+
+    it 'rejects malformed addresses' do
+      email = build(:email, to: 'not-an-address', from: 'also wrong')
+      expect(email).not_to be_valid
+      expect(email.errors.to_hash.keys).to include(:to, :from)
+    end
   end
 
-  context "Validations" do
-    it "is valid with valid attributes" do
-      email = build(:email)
-      expect(email).to be_valid
+  describe 'service enum' do
+    it 'records SendGrid as the service' do
+      expect(build(:email, :sendgrid)).to be_sendgrid
     end
 
-    it "is valid with valid attributes" do
-      email = build(:email, :sendgrid)
-      expect(email.sendgrid?).to eq(true)
-    end
-
-    it "is valid with valid attributes" do
-      email = build(:email, :postmark)
-      expect(email.postmark?).to eq(true)
-    end
-
-    it "is invalid with invalid attributes" do
-      email = build(:email)
-      expect(email).to be_valid
+    it 'records Postmark as the service' do
+      expect(build(:email, :postmark)).to be_postmark
     end
   end
 end

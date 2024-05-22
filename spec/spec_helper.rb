@@ -1,31 +1,35 @@
 require './spec_config'
-require 'vcr'
+require 'webmock/rspec'
+require 'database_cleaner'
+require 'factory_bot'
+require 'faker'
 
-VCR.configure do |config|
-  config.cassette_library_dir = "fixtures/vcr_cassettes"
-  config.hook_into :webmock
+WebMock.disable_net_connect!
+
+module ProviderStubs
+  SENDGRID_URL = 'https://api.sendgrid.com/v3/mail/send'.freeze
+  POSTMARK_URL = 'https://api.postmarkapp.com/email'.freeze
+
+  def stub_sendgrid(status: 202, body: '')
+    stub_request(:post, SENDGRID_URL).to_return(status: status, body: body)
+  end
+
+  def stub_postmark(status: 200, body: '{"ErrorCode":0,"Message":"OK"}')
+    stub_request(:post, POSTMARK_URL).to_return(status: status, body: body)
+  end
 end
-WebMock.allow_net_connect!
 
 RSpec.configure do |config|
-  require 'database_cleaner'
-  require 'factory_bot'
-
   config.include FactoryBot::Syntax::Methods
+  config.include ProviderStubs
 
-  # Clean up the database
   config.before(:suite) do
-    DatabaseCleaner.strategy = :transaction
     DatabaseCleaner.clean_with(:truncation)
+    DatabaseCleaner.strategy = :transaction
     FactoryBot.find_definitions
   end
 
-  config.before(:context) do
-    DatabaseCleaner.start
+  config.around(:each) do |example|
+    DatabaseCleaner.cleaning { example.run }
   end
-
-  config.after(:context) do
-    DatabaseCleaner.clean
-  end
-
 end
