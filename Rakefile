@@ -1,3 +1,2 @@
-require 'sinatra/activerecord'
+require './config/application'
 require 'sinatra/activerecord/rake'
-require './communication_app'

@@ -10,10 +10,7 @@ class Email < ActiveRecord::Base
     postmark: EmailServices::PostmarkEmail
   }.freeze
 
-  enum service: { 
-    postmark: 0, 
-    sendgrid: 1
-  }
+  enum :service, { postmark: 0, sendgrid: 1 }
 
   def initiate_email
     # Dynamicaly use the first email service that runs successfuly

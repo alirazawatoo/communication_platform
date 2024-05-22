@@ -2,8 +2,8 @@ class CommunicationApp < Sinatra::Base
   set :show_exceptions, false
   
   post "/email" do
-    format_date
-    email = Email.new(params)
+    attributes = email_attributes
+    email = Email.new(attributes)
 
     if email.save
       email = email.reload
@@ -39,7 +39,11 @@ class CommunicationApp < Sinatra::Base
   end 
 
   private
-  def format_date
-    params[:send_at] = DateTime.parse(params[:send_at]) if params[:send_at].present?
+
+  # rack-parser used to turn JSON bodies into params in config.ru; parse them here so specs cover it too.
+  def email_attributes
+    attributes = request.media_type == 'application/json' ? JSON.parse(request.body.read) : params.to_h
+    attributes['send_at'] = DateTime.parse(attributes['send_at']) if attributes['send_at'].present?
+    attributes
   end
 end
