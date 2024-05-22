@@ -1,0 +1,33 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: relay
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-relay}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U relay"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
+  app:
+    build: .
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      RACK_ENV: production
+      db_host: db
+      db_port: 5432
+      db_username: relay
+      db_password: ${POSTGRES_PASSWORD:-relay}
+    ports:
+      - "4567:4567"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:

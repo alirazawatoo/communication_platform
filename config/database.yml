@@ -1,7 +1,10 @@
+# Connection settings come from the environment (.env locally, Compose in Docker).
 development:
   adapter: postgresql
   encoding: unicode
   pool: <%= ENV.fetch('RAILS_MAX_THREADS') { 5 } %>
+  host: <%= ENV.fetch('db_host') { 'localhost' } %>
+  port: <%= ENV.fetch('db_port') { 5432 } %>
   username: <%= ENV['db_username'] %>
   password: <%= ENV['db_password'] %>
   database: email_communication_development
@@ -10,6 +13,18 @@ test:
   adapter: postgresql
   encoding: unicode
   pool: <%= ENV.fetch('RAILS_MAX_THREADS') { 5 } %>
+  host: <%= ENV.fetch('db_host') { 'localhost' } %>
+  port: <%= ENV.fetch('db_port') { 5432 } %>
   username: <%= ENV['db_username'] %>
   password: <%= ENV['db_password'] %>
   database: email_communication_test
+
+production:
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch('RAILS_MAX_THREADS') { 5 } %>
+  host: <%= ENV.fetch('db_host') { 'localhost' } %>
+  port: <%= ENV.fetch('db_port') { 5432 } %>
+  username: <%= ENV['db_username'] %>
+  password: <%= ENV['db_password'] %>
+  database: <%= ENV.fetch('db_name') { 'email_communication_production' } %>

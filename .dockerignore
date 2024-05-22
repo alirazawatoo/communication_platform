@@ -1,0 +1,12 @@
+.git
+.env
+.env.*
+!.env.example
+log/
+tmp/
+coverage/
+vendor/bundle/
+spec/
+docs/
+*.md
+.DS_Store
