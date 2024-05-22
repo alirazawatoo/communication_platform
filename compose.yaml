@@ -29,5 +29,25 @@ services:
       db:
         condition: service_healthy
 
+  # Runs the RSpec suite against the same database: docker compose --profile test run --rm test
+  test:
+    image: ruby:3.4.12
+    profiles: [test]
+    working_dir: /app
+    volumes:
+      - .:/app:ro
+      - test-bundle:/usr/local/bundle
+    environment:
+      RACK_ENV: test
+      BUNDLE_FROZEN: "true"
+      db_host: db
+      db_username: relay
+      db_password: ${POSTGRES_PASSWORD:-relay}
+    command: ["sh", "-c", "bundle install --quiet && bundle exec rake db:create db:schema:load && bundle exec rspec"]
+    depends_on:
+      db:
+        condition: service_healthy
+
 volumes:
   pgdata:
+  test-bundle:
