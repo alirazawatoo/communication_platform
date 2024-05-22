@@ -1,0 +1,24 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Databases and logs
+*.sqlite3
+*.sqlite3-journal
+*.db
+log/
+*.log
+tmp/
+
+# Bundler and Ruby tooling
+.bundle/
+vendor/bundle/
+coverage/
+.rspec_status
+fixtures/vcr_cassettes/
+
+# Editors and OS files
+.idea/
+.vscode/
+.DS_Store
