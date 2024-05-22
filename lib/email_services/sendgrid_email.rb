@@ -1,22 +1,23 @@
 module EmailServices
   class SendgridEmail
+    include HttpClient
+
+    def self.api_url
+      ENV.fetch('SENDGRID_API_URL', 'https://api.sendgrid.com/v3/mail/send')
+    end
+
     def send_email(meta)
-      sendgrid_params = { 
-                          "personalizations": 
-                            [{ "to": [{ "email": meta['to'], "name": meta['to_name'] }] }],
-                            "from": {"email": meta['from'], "name": meta['from_name']},
-                            "subject": meta['subject'],
-                            "content": [{"type": "text/html", "value": meta['body']}]
-                        }
-      
-      sg_headers = { 
-                     "Content-Type": "application/json", 
-                     "Authorization": "Bearer #{ENV['SG_KEY']}"
-                    }
+      return nil if ENV['SG_KEY'].to_s.empty?
 
-      sendgrid_params['send_at'] = meta['send_at'].to_i if meta['send_at'].present?
+      payload = {
+        'personalizations' => [{ 'to' => [{ 'email' => meta['to'], 'name' => meta['to_name'] }] }],
+        'from' => { 'email' => meta['from'], 'name' => meta['from_name'] },
+        'subject' => meta['subject'],
+        'content' => [{ 'type' => 'text/html', 'value' => meta['body'] }]
+      }
+      payload['send_at'] = meta['send_at'].to_i if meta['send_at'].present?
 
-      Net::HTTP.post URI('https://api.sendgrid.com/v3/mail/send'), sendgrid_params.to_json, sg_headers
+      post_json(self.class.api_url, payload, 'Authorization' => "Bearer #{ENV['SG_KEY']}")
     end
   end
 end

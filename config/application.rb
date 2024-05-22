@@ -1,6 +1,7 @@
 require 'bundler/setup'
 require 'json'
 require 'net/http'
+require 'openssl'
 
 Bundler.require(:default)
 
